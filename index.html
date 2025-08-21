@@ -3,25 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Judul Web App Anda</title>
+    <title>Upload Rapor Pendidikan & Kurikulum 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS untuk membuat iframe memenuhi seluruh layar */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc;
+            background-image: radial-gradient(circle at top left, #ffffff 0%, #f0f2f5 100%);
         }
-        iframe {
-            border: none;
-            width: 100%;
-            height: 100%;
-        }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .upload-area { border: 2px dashed #cbd5e0; transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #667eea; background-color: #f7fafc; }
+        .upload-area.dragover { border-color: #667eea; background-color: #edf2f7; }
+        .trophy-animation { animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        .modal-overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
+    <div class="flex-grow">
+        <!-- Header (Dengan Countdown) -->
+        <div class="gradient-bg text-white py-8">
+            <div class="container mx-auto px-4">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold mb-2">📚 Upload Rapor Pendidikan & Kurikulum 2025</h1>
+                    <p class="text-lg opacity-90">Sistem Upload Dokumen Satuan Pendidikan</p>
+                    <div id="countdown-container" class="mt-6">
+                        <p class="text-sm font-medium opacity-80 mb-3">SISA WAKTU UPLOAD</p>
+                        <div id="countdown-timer" class="flex justify-center items-start space-x-2 md:space-x-4">
+                            <div class="text-center"><div class="bg-white/20 rounded-lg p-3 min-w-[60px]"><span id="days" class="text-3xl font-bold">00</span></div><small class="text-xs opacity-80 mt-1 block">Hari</small></div>
+                            <div class="text-center"><div class="bg-white/20 rounded-lg p-3 min-w-[60px]"><span id="hours" class="text-3xl font-bold">00</span></div><small class="text-xs opacity-80 mt-1 block">Jam</small></div>
+                            <div class="text-center"><div class="bg-white/20 rounded-lg p-3 min-w-[60px]"><span id="minutes" class="text-3xl font-bold">00</span></div><small class="text-xs opacity-80 mt-1 block">Menit</small></div>
+                            <div class="text-center"><div class="bg-white/20 rounded-lg p-3 min-w-[60px]"><span id="seconds" class="text-3xl font-bold">00</span></div><small class="text-xs opacity-80 mt-1 block">Detik</small></div>
+                        </div>
+                        <div id="countdown-expired" class="hidden mt-4 bg-red-500 bg-opacity-80 border border-red-300 rounded-lg p-3 inline-block">
+                             <p class="text-lg font-medium">⏰ Waktu Upload Telah Berakhir! ⏰</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <iframe src="https://script.google.com/macros/s/AKfycbwSGSOTJtuin29JWI1P7OPeDhJRCCDwyurh4xFhkznLnY2F_tW0cXXO5hT2eZgbQcRZgA/exec"></iframe>
+        <div class="container mx-auto px-4 py-8">
+            <!-- Form Upload -->
+            <div id="formContainer" class="bg-white/70 backdrop-blur-sm rounded-xl card-shadow p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center"><span class="bg-blue-100 p-2 rounded-lg mr-3">📝</span>Form Upload Dokumen</h2>
+                <form id="uploadForm" class="space-y-6">
+                    <!-- Isi Form (Sama seperti sebelumnya) -->
+                    <div class="grid md:grid-cols-3 gap-6"><div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Sekolah</label><input type="text" id="namaSekolah" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Masukkan nama sekolah"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Jenjang Pendidikan</label><select id="jenjang" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"><option value="">Pilih Jenjang</option><option value="TK">TK</option><option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA">SMA</option><option value="SMK">SMK</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Status</label><select id="status" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"><option value="">Pilih Status</option><option value="Negeri">Negeri</option><option value="Swasta">Swasta</option></select></div></div>
+                    <div class="grid md:grid-cols-2 gap-6"><div><label class="block text-sm font-medium text-gray-700 mb-2">📚 Upload Kurikulum</label><div class="upload-area rounded-lg p-6 text-center cursor-pointer" id="uploadAreaKurikulum"><div class="text-gray-400 mb-3"><svg class="mx-auto h-10 w-10" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><p class="text-base font-medium text-gray-700">Klik untuk upload</p><p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX</p><input type="file" id="fileInputKurikulum" class="hidden" accept=".pdf,.doc,.docx" required></div><div id="fileInfoKurikulum" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"><div class="flex items-center"><span class="text-blue-600 mr-2">📚</span><span id="fileNameKurikulum" class="text-blue-800 font-medium text-sm"></span><button type="button" id="removeFileKurikulum" class="ml-auto text-red-500 hover:text-red-700">✕</button></div></div></div><div><label class="block text-sm font-medium text-gray-700 mb-2">📊 Upload Rapor</label><div class="upload-area rounded-lg p-6 text-center cursor-pointer" id="uploadAreaRapor"><div class="text-gray-400 mb-3"><svg class="mx-auto h-10 w-10" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M7 21l3-3 7 7 13-13 3 3-16 16L7 21z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 15H3v-2a2 2 0 012-2h14a2 2 0 012 2v2zM3 15v26a2 2 0 002 2h14a2 2 0 002-2V15H3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><p class="text-base font-medium text-gray-700">Klik untuk upload</p><p class="text-xs text-gray-500 mt-1">Excel: XLS, XLSX</p><input type="file" id="fileInputRapor" class="hidden" accept=".xls,.xlsx" required></div><div id="fileInfoRapor" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg"><div class="flex items-center"><span class="text-green-600 mr-2">📊</span><span id="fileNameRapor" class="text-green-800 font-medium text-sm"></span><button type="button" id="removeFileRapor" class="ml-auto text-red-500 hover:text-red-700">✕</button></div></div></div></div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">🚀 Upload Dokumen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <footer class="bg-transparent text-center py-5"><p class="text-sm text-gray-500">&copy; 2025 Sistem Upload Dokumen. Created by: <strong>Suwito Setiadi</strong> - Pengawas Sekolah.</p></footer>
 
+    <!-- MODAL POP-UP -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 modal-overlay"><div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-8 text-white max-w-lg w-full text-center transform transition-all scale-95 opacity-0" id="successModalContent"><div class="trophy-animation text-6xl mb-4">🏆</div><h3 class="text-2xl font-bold mb-2">Selamat! Sekolah Anda Telah Berpartisipasi!</h3><p class="text-lg opacity-90 mb-6">Terima kasih telah mengupload dokumen.</p><div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4"><button id="viewDataBtn" class="bg-white text-yellow-800 font-semibold py-3 px-6 rounded-lg hover:bg-yellow-50 transition-colors">📊 Lihat Data</button><button id="closeSuccessBtn" class="bg-white bg-opacity-20 font-semibold py-3 px-6 rounded-lg hover:bg-opacity-30 transition-colors">Tutup</button></div></div></div>
+    <div id="dataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 modal-overlay"><div class="bg-white rounded-xl p-6 md:p-8 max-w-6xl w-full transform transition-all scale-95 opacity-0 overflow-hidden" id="dataModalContent"><div class="flex justify-between items-center border-b pb-4 mb-4"><h2 class="text-2xl font-bold text-gray-800">📊 Data Sekolah yang Sudah Upload</h2><button id="closeDataBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button></div><div id="tableContainer" class="overflow-x-auto max-h-[70vh]"><p id="loadingData" class="text-center text-gray-600 p-8">Memuat data...</p><table class="min-w-full hidden"><thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">No</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Sekolah</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu Upload</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Penilaian</th></tr></thead><tbody id="dataTableBody" class="bg-white divide-y divide-gray-200"></tbody></table><div id="emptyData" class="text-center py-12 hidden"><div class="text-gray-400 text-6xl mb-4">📋</div><h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Data</h3></div></div></div></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- LOGIKA COUNTDOWN TIMER ---
+            const deadline = new Date("2025-08-21T23:59:59").getTime();
+            const countdownInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = deadline - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = String(days).padStart(2, '0');
+                document.getElementById("hours").innerText = String(hours).padStart(2, '0');
+                document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
+                document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown-timer").classList.add("hidden");
+                    document.getElementById("countdown-expired").classList.remove("hidden");
+                    const submitBtn = document.querySelector('#uploadForm button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = "Waktu Upload Telah Berakhir";
+                        submitBtn.classList.add('cursor-not-allowed', 'opacity-50');
+                    }
+                }
+            }, 1000);
+
+            // --- DOM ELEMENTS & EVENT LISTENERS ---
+            const uploadForm = document.getElementById('uploadForm');
+            const submitButton = uploadForm.querySelector('button[type="submit"]');
+            const successModal = document.getElementById('successModal');
+            const successModalContent = document.getElementById('successModalContent');
+            const viewDataBtn = document.getElementById('viewDataBtn');
+            const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+            const dataModal = document.getElementById('dataModal');
+            const dataModalContent = document.getElementById('dataModalContent');
+            const closeDataBtn = document.getElementById('closeDataBtn');
+            const loadingData = document.getElementById('loadingData');
+            const emptyData = document.getElementById('emptyData');
+            const dataTable = dataModal.querySelector('table');
+            const dataTableBody = document.getElementById('dataTableBody');
+            const uploadAreaKurikulum = document.getElementById('uploadAreaKurikulum');
+            const fileInputKurikulum = document.getElementById('fileInputKurikulum');
+            const fileInfoKurikulum = document.getElementById('fileInfoKurikulum');
+            const fileNameKurikulum = document.getElementById('fileNameKurikulum');
+            const removeFileKurikulum = document.getElementById('removeFileKurikulum');
+            const uploadAreaRapor = document.getElementById('uploadAreaRapor');
+            const fileInputRapor = document.getElementById('fileInputRapor');
+            const fileInfoRapor = document.getElementById('fileInfoRapor');
+            const fileNameRapor = document.getElementById('fileNameRapor');
+            const removeFileRapor = document.getElementById('removeFileRapor');
+
+            // --- Logika File Upload ---
+            uploadAreaKurikulum.addEventListener('click', () => fileInputKurikulum.click());
+            uploadAreaKurikulum.addEventListener('dragover', (e) => { e.preventDefault(); uploadAreaKurikulum.classList.add('dragover'); });
+            uploadAreaKurikulum.addEventListener('dragleave', () => { uploadAreaKurikulum.classList.remove('dragover'); });
+            uploadAreaKurikulum.addEventListener('drop', (e) => { e.preventDefault(); uploadAreaKurikulum.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFileSelectKurikulum(e.dataTransfer.files[0]); });
+            fileInputKurikulum.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFileSelectKurikulum(e.target.files[0]); });
+            removeFileKurikulum.addEventListener('click', () => { fileInputKurikulum.value = ''; fileInfoKurikulum.classList.add('hidden'); });
+            uploadAreaRapor.addEventListener('click', () => fileInputRapor.click());
+            uploadAreaRapor.addEventListener('dragover', (e) => { e.preventDefault(); uploadAreaRapor.classList.add('dragover'); });
+            uploadAreaRapor.addEventListener('dragleave', () => { uploadAreaRapor.classList.remove('dragover'); });
+            uploadAreaRapor.addEventListener('drop', (e) => { e.preventDefault(); uploadAreaRapor.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) handleFileSelectRapor(e.dataTransfer.files[0]); });
+            fileInputRapor.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFileSelectRapor(e.target.files[0]); });
+            removeFileRapor.addEventListener('click', () => { fileInputRapor.value = ''; fileInfoRapor.classList.add('hidden'); });
+
+            function handleFileSelectKurikulum(file) { const maxSize = 10 * 1024 * 1024; const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']; if (file.size > maxSize) { alert('Ukuran file Kurikulum terlalu besar! Maksimal 10MB.'); fileInputKurikulum.value = ''; return } if (!allowedTypes.includes(file.type)) { alert('Format file Kurikulum tidak didukung! Gunakan PDF, DOC, atau DOCX.'); fileInputKurikulum.value = ''; return } fileNameKurikulum.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)'; fileInfoKurikulum.classList.remove('hidden'); }
+            function handleFileSelectRapor(file) { const maxSize = 10 * 1024 * 1024; const allowedTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']; if (file.size > maxSize) { alert('Ukuran file Rapor terlalu besar! Maksimal 10MB.'); fileInputRapor.value = ''; return } if (!allowedTypes.includes(file.type)) { alert('Format file Rapor tidak didukung! Gunakan Excel (XLS atau XLSX).'); fileInputRapor.value = ''; return } fileNameRapor.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)'; fileInfoRapor.classList.remove('hidden'); }
+            function readFileAsBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => { const base64String = reader.result.split(',')[1]; resolve(base64String); }; reader.onerror = error => reject(error); reader.readAsDataURL(file); }); }
+
+            // --- Logika Modal ---
+            function showSuccessModal() { successModal.classList.remove("hidden"); setTimeout(() => { successModal.classList.remove("opacity-0"); successModalContent.classList.remove("scale-95", "opacity-0") }, 10) }
+            function hideSuccessModal() { successModalContent.classList.add("scale-95", "opacity-0"); successModal.classList.add("opacity-0"); setTimeout(() => { successModal.classList.add("hidden") }, 300) }
+            function showDataModal() { dataModal.classList.remove("hidden"); setTimeout(() => { dataModal.classList.remove("opacity-0"); dataModalContent.classList.remove("scale-95", "opacity-0") }, 10) }
+            function hideDataModal() { dataModalContent.classList.add("scale-95", "opacity-0"); dataModal.classList.add("opacity-0"); setTimeout(() => { dataModal.classList.add("hidden") }, 300) }
+            closeSuccessBtn.addEventListener("click", hideSuccessModal);
+            closeDataBtn.addEventListener("click", hideDataModal);
+
+            // --- Event Listener Tombol Lihat Data ---
+            viewDataBtn.addEventListener('click', () => { hideSuccessModal(); showDataModal(); loadingData.classList.remove('hidden'); dataTable.classList.add('hidden'); emptyData.classList.add('hidden'); google.script.run.withSuccessHandler(data => { loadingData.classList.add('hidden'); if (data && data.length > 0) { dataTableBody.innerHTML = ''; data.forEach((row, index) => { const penilaian = row[8]; let penilaianBadge = ''; if (penilaian === 'Tepat Waktu') { penilaianBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">⭐ Tepat Waktu</span>`; } else if (penilaian === 'Terlambat') { penilaianBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">⚠️ Terlambat</span>`; } const tr = ` <tr class="hover:bg-gray-50"> <td class="px-4 py-3 text-sm text-gray-700">${index + 1}</td> <td class="px-4 py-3"> <div class="text-sm font-medium text-gray-900">${row[1]}</div> <div class="text-xs text-gray-500">${row[2]} (${row[3]})</div> </td> <td class="px-4 py-3 text-xs text-gray-500">${row[6]}</td> <td class="px-4 py-3 text-sm">${penilaianBadge}</td> <td class="px-4 py-3 text-sm space-x-2"> </td> </tr> `; dataTableBody.innerHTML += tr; }); dataTable.classList.remove('hidden'); } else { emptyData.classList.remove('hidden'); } }).withFailureHandler(error => { loadingData.textContent = "Gagal memuat data: " + error.message; }).getSheetData(); });
+            
+            // --- Logika Submit Form ---
+            uploadForm.addEventListener("submit", async e => { e.preventDefault(); const namaSekolah = document.getElementById("namaSekolah").value.trim(); const jenjang = document.getElementById("jenjang").value; const status = document.getElementById("status").value; const fileKurikulum = fileInputKurikulum.files[0]; const fileRapor = fileInputRapor.files[0]; if (!namaSekolah || !jenjang || !status || !fileKurikulum || !fileRapor) { alert("Semua field dan file wajib diisi!"); return; } submitButton.disabled = true; submitButton.innerHTML = "🔄 Sedang Mengupload..."; try { const [base64Kurikulum, base64Rapor] = await Promise.all([readFileAsBase64(fileKurikulum), readFileAsBase64(fileRapor)]); const payload = { namaSekolah, jenjang, status, fileKurikulum: { name: fileKurikulum.name, type: fileKurikulum.type, base64: base64Kurikulum }, fileRapor: { name: fileRapor.name, type: fileRapor.type, base64: base64Rapor } }; google.script.run.withSuccessHandler(response => { showSuccessModal(); uploadForm.reset(); fileInfoKurikulum.classList.add("hidden"); fileInfoRapor.classList.add("hidden"); submitButton.disabled = false; submitButton.innerHTML = "🚀 Upload Dokumen"; }).withFailureHandler(error => { alert("Gagal mengupload dokumen.\nDetail Error: " + error.message); submitButton.disabled = false; submitButton.innerHTML = "🚀 Upload Dokumen"; }).uploadFilesAndData(payload); } catch (error) { alert("Terjadi kesalahan di browser Anda: " + error.message); submitButton.disabled = false; submitButton.innerHTML = "🚀 Upload Dokumen"; } });
+
+        }); // Akhir dari DOMContentLoaded
+    </script>
 </body>
 </html>
